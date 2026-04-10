@@ -22,10 +22,10 @@ export default function App() {
       <Hero />
 
       <main>
-        <HamperSection />
-        <GiftSection />
         {/* Pass the onCustomize handler to CakeSection */}
         <CakeSection onCustomize={handleCustomize} />
+        <HamperSection />
+        <GiftSection />
       </main>
 
       <Footer />
