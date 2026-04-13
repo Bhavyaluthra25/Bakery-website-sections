@@ -1,7 +1,36 @@
+import { useState } from 'react';
 import { ProductCard } from './ProductCard';
+import { CustomizeModal } from './CustomizeModal';
 
 export default function HamperSection() {
+  const [selectedHamper, setSelectedHamper] = useState<string | null>(null);
+
   const hampers = [
+    {
+      name: 'Starter Birthday Hamper',
+      description: 'A delightful starter birthday hamper with sweet treats',
+      price: '₹500',
+      image: '/500birthday.jpeg'
+    },
+    {
+      name: 'Classic Birthday Hamper',
+      description: 'A classic birthday hamper featuring our signature assortment',
+      price: '₹700',
+      image: '/700birthday.jpeg'
+    },
+    {
+      name: 'Premium Birthday Hamper',
+      description: 'Our premium birthday hamper for the ultimate celebration',
+      price: '₹1500',
+      image: '/1500birthday.jpg'
+    },
+    {
+      name: 'Twix Balloon Hamper',
+      description: 'A customizable twix balloon hamper tailored to your needs',
+      price: '₹1200',
+      image: '/Twix-Bunny-Balloon-Hamper.jpg',
+      customizable: true
+    },
     {
       name: 'Birthday Celebration',
       description: 'Balloons, cupcakes, and party treats',
@@ -33,9 +62,20 @@ export default function HamperSection() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {hampers.map((hamper, index) => (
-          <ProductCard key={hamper.name} {...hamper} index={index} />
+          <ProductCard 
+            key={hamper.name} 
+            {...hamper} 
+            index={index} 
+            onCustomize={() => setSelectedHamper(hamper.name)}
+          />
         ))}
       </div>
+
+      <CustomizeModal
+        isOpen={!!selectedHamper}
+        onClose={() => setSelectedHamper(null)}
+        cakeName={selectedHamper || ''}
+      />
     </section>
   );
 }

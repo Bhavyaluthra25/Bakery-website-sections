@@ -24,7 +24,7 @@ type Size = "250g" | "500g" | "1kg";
 // ── Data ──────────────────────────────────────────────────────────────────────
 const CAKES: Cake[] = [
   // Classic
-  { id: "vanilla", name: "Vanilla Dream", description: "Classic vanilla sponge with buttercream frosting", image: "https://images.unsplash.com/photo-1557776959-f066eb37857f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800", category: "classic", prices: { "250g": 150, "500g": 299, "1kg": 550 } },
+  { id: "vanilla", name: "Vanilla Dream", description: "Classic vanilla sponge with buttercream frosting", image:"C:\Users\bhavya\Downloads\Bakery website sections\public\vanila.avif", category: "classic", prices: { "250g": 150, "500g": 299, "1kg": 550 } },
   { id: "chocolate", name: "Chocolate Elegance", description: "Rich dark chocolate layers with velvet frosting", image: "https://images.unsplash.com/photo-1594403759538-5141d2cc452a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800", category: "classic", prices: { "250g": 175, "500g": 349, "1kg": 650 } },
   { id: "butterscotch", name: "Butterscotch Bliss", description: "Golden butterscotch cream with crunchy praline", image: "https://images.unsplash.com/photo-1621303837174-89787a7d4729?w=600&q=80", category: "classic", prices: { "250g": 160, "500g": 320, "1kg": 600 } },
   { id: "pineapple", name: "Pineapple Delight", description: "Light pineapple sponge with fresh cream", image: "https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=600&q=80", category: "classic", prices: { "250g": 150, "500g": 299, "1kg": 550 } },
