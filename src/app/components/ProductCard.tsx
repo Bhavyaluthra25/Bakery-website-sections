@@ -9,9 +9,11 @@ interface ProductCardProps {
   index: number;
   customizable?: boolean;
   onCustomize?: () => void;
+  showAddToCart?: boolean;
+  onAddToCart?: () => void;
 }
 
-export function ProductCard({ name, description, price, image, index, customizable, onCustomize }: ProductCardProps) {
+export function ProductCard({ name, description, price, image, index, customizable, onCustomize, showAddToCart, onAddToCart }: ProductCardProps) {
   return (
     <motion.div
       initial={{ y: 40, opacity: 0 }}
@@ -27,17 +29,28 @@ export function ProductCard({ name, description, price, image, index, customizab
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-primary/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-        {customizable && (
-          <motion.button
-            initial={{ y: 20, opacity: 0 }}
-            whileHover={{ scale: 1.05 }}
-            onClick={onCustomize}
-            className="absolute bottom-4 left-4 right-4 bg-accent text-accent-foreground py-3 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300"
-          >
-            Customize
-          </motion.button>
-        )}
+        <div className="absolute bottom-4 left-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
+          {showAddToCart && (
+            <motion.button
+              initial={{ y: 20, opacity: 0 }}
+              whileHover={{ scale: 1.05 }}
+              onClick={(e) => { e.stopPropagation(); onAddToCart?.(); }}
+              className="flex-1 bg-primary text-primary-foreground py-3 rounded-full text-sm font-semibold shadow-lg"
+            >
+              Add to Cart
+            </motion.button>
+          )}
+          {customizable && (
+            <motion.button
+              initial={{ y: 20, opacity: 0 }}
+              whileHover={{ scale: 1.05 }}
+              onClick={(e) => { e.stopPropagation(); onCustomize?.(); }}
+              className="flex-1 bg-accent text-accent-foreground py-3 rounded-full text-sm font-semibold shadow-lg"
+            >
+              Customize
+            </motion.button>
+          )}
+        </div>
       </div>
 
       <div className="space-y-2">
