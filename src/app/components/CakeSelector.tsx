@@ -1,4 +1,5 @@
 import { useState } from "react";
+import CheckoutModal, { CheckoutItem } from "./CheckoutModal";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface Cake {
@@ -21,70 +22,60 @@ interface CartItem {
 
 type Size = "250g" | "500g" | "1kg";
 
-// ── WhatsApp Checkout ─────────────────────────────────────────────────────────
-const WHATSAPP_NUMBER = "918810696454"; // ← Replace with your WhatsApp number
-
-function orderViaWhatsApp(items: CartItem[]) {
-  const itemList = items
-    .map(i => `• ${i.name} (${i.size}) x${i.qty} — ₹${i.price * i.qty}`)
-    .join("\n");
-  const total = items.reduce((s, i) => s + i.price * i.qty, 0);
-  const message =
-    `🎂 *New Cake Order from Website*\n\n*Items Ordered:*\n${itemList}\n\n*Total: ₹${total}*\n\nPlease confirm my order. Thank you!`;
-  window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank");
-}
+const WHATSAPP_NUMBER = "91XXXXXXXXXX"; // ← Replace with your number
 
 // ── Data ──────────────────────────────────────────────────────────────────────
 const CAKES: Cake[] = [
-  { id: "vanilla", name: "Vanilla Dream", description: "Classic vanilla sponge with buttercream frosting", image: "https://images.unsplash.com/photo-1557776959-f066eb37857f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800", category: "classic", prices: { "250g": 150, "500g": 299, "1kg": 550 } },
-  { id: "chocolate", name: "Chocolate Elegance", description: "Rich dark chocolate layers with velvet frosting", image: "https://images.unsplash.com/photo-1594403759538-5141d2cc452a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800", category: "classic", prices: { "250g": 175, "500g": 349, "1kg": 650 } },
-  { id: "butterscotch", name: "Butterscotch Bliss", description: "Golden butterscotch cream with crunchy praline", image: "https://images.unsplash.com/photo-1621303837174-89787a7d4729?w=600&q=80", category: "classic", prices: { "250g": 160, "500g": 320, "1kg": 600 } },
-  { id: "pineapple", name: "Pineapple Delight", description: "Light pineapple sponge with fresh cream", image: "https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=600&q=80", category: "classic", prices: { "250g": 150, "500g": 299, "1kg": 550 } },
-  { id: "blackforest", name: "Black Forest", description: "Chocolate sponge with cherries and cream", image: "https://images.unsplash.com/photo-1562440499-64c9a111f713?w=600&q=80", category: "classic", prices: { "250g": 175, "500g": 349, "1kg": 650 } },
-  { id: "strawberry", name: "Strawberry Delight", description: "Fresh strawberries and light cream", image: "https://images.unsplash.com/photo-1726828952313-385d63df2514?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800", category: "classic", prices: { "250g": 175, "500g": 349, "1kg": 650 } },
-  { id: "truffle", name: "Chocolate Truffle", description: "Indulgent truffle ganache with dark chocolate shavings", image: "https://images.unsplash.com/photo-1606890737304-57a1ca8a5994?w=600&q=80", category: "chocolate", prices: { "250g": 200, "500g": 399, "1kg": 750 } },
-  { id: "fudge", name: "Chocolate Fudge", description: "Dense fudge layers with rich chocolate sauce", image: "https://images.unsplash.com/photo-1586985289688-ca3cf47d3e6e?w=600&q=80", category: "chocolate", prices: { "250g": 225, "500g": 449, "1kg": 850 } },
-  { id: "hazelnut", name: "Chocolate Hazelnut", description: "Nutella cream with crunchy hazelnut praline", image: "https://images.unsplash.com/photo-1571115177098-24ec42ed204d?w=600&q=80", category: "chocolate", prices: { "250g": 250, "500g": 499, "1kg": 950 } },
-  { id: "oreo", name: "Chocolate Oreo", description: "Chocolate sponge loaded with Oreo cream chunks", image: "https://images.unsplash.com/photo-1551879400-111a9087cd86?w=600&q=80", category: "chocolate", prices: { "250g": 225, "500g": 449, "1kg": 850 } },
-  { id: "mint", name: "Chocolate Mint", description: "Cool mint cream with dark chocolate layers", image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=600&q=80", category: "chocolate", prices: { "250g": 200, "500g": 399, "1kg": 750 } },
-  { id: "mango", name: "Mango Tango", description: "Alphonso mango cream with fresh mango chunks", image: "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=600&q=80", category: "fruit", prices: { "250g": 200, "500g": 399, "1kg": 750 } },
-  { id: "blueberry", name: "Blueberry Burst", description: "Blueberry compote with vanilla cream layers", image: "https://images.unsplash.com/photo-1559620192-032c4bc4674e?w=600&q=80", category: "fruit", prices: { "250g": 225, "500g": 449, "1kg": 850 } },
-  { id: "lemon", name: "Lemon Citrus", description: "Fresh lemon zest with tangy glaze", image: "https://images.unsplash.com/photo-1552958492-9cb8e9446673?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800", category: "fruit", prices: { "250g": 190, "500g": 379, "1kg": 699 } },
-  { id: "raspberry", name: "Raspberry Rose", description: "Delicate rose water with fresh raspberries", image: "https://images.unsplash.com/photo-1670225078962-0c3490641003?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800", category: "fruit", prices: { "250g": 225, "500g": 449, "1kg": 850 } },
-  { id: "redvelvet", name: "Red Velvet", description: "Smooth cream cheese frosting on red velvet", image: "https://images.unsplash.com/photo-1604413191066-4dd20bedf486?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800", category: "premium", prices: { "250g": 249, "500g": 499, "1kg": 950 } },
-  { id: "tiramisu", name: "Tiramisu Supreme", description: "Coffee-soaked layers with mascarpone cream", image: "https://images.unsplash.com/photo-1671721100511-4cb82346d66a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800", category: "premium", prices: { "250g": 299, "500g": 599, "1kg": 1150 } },
-  { id: "caramel", name: "Caramel Delight", description: "Salted caramel buttercream perfection", image: "https://images.unsplash.com/photo-1658413381696-e75f942aa3d2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800", category: "premium", prices: { "250g": 275, "500g": 549, "1kg": 1050 } },
-  { id: "pistachio", name: "Pistachio Bliss", description: "Ground pistachios with white chocolate", image: "https://images.unsplash.com/photo-1701944578045-dc3f7fd28335?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800", category: "premium", prices: { "250g": 299, "500g": 599, "1kg": 1150 } },
-  { id: "ferrero", name: "Ferrero Rocher", description: "Hazelnut praline with Ferrero Rocher pieces", image: "https://images.unsplash.com/photo-1599785209707-a456fc1337bb?w=600&q=80", category: "fusion", prices: { "250g": 325, "500g": 649, "1kg": 1249 } },
-  { id: "biscoff", name: "Biscoff Lotus", description: "Lotus Biscoff spread with caramelised cookie crumble", image: "https://images.unsplash.com/photo-1587668178277-295251f900ce?w=600&q=80", category: "fusion", prices: { "250g": 325, "500g": 649, "1kg": 1249 } },
-  { id: "matcha", name: "Matcha Green Tea", description: "Japanese matcha with honey glaze", image: "https://images.unsplash.com/photo-1672504015204-07372bd02933?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800", category: "fusion", prices: { "250g": 275, "500g": 549, "1kg": 1050 } },
-  { id: "rasmalai", name: "Rasmalai Cake", description: "Saffron cream with soft rasmalai pieces", image: "https://images.unsplash.com/photo-1606890737304-57a1ca8a5994?w=600&q=80", category: "indian", prices: { "250g": 249, "500g": 499, "1kg": 950 } },
-  { id: "kesarpista", name: "Kesar Pista", description: "Saffron and pistachio cream with rose petals", image: "https://images.unsplash.com/photo-1621303837174-89787a7d4729?w=600&q=80", category: "indian", prices: { "250g": 275, "500g": 549, "1kg": 1050 } },
-  { id: "gulabjamun", name: "Gulab Jamun Cake", description: "Gulab jamun pieces soaked in rose syrup cream", image: "https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=600&q=80", category: "indian", prices: { "250g": 249, "500g": 499, "1kg": 950 } },
+  { id: "vanilla",      name: "Vanilla Dream",        description: "Classic vanilla sponge with buttercream frosting",       image: "https://images.unsplash.com/photo-1557776959-f066eb37857f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800",                 category: "classic",   prices: { "250g": 150, "500g": 299,  "1kg": 550  } },
+  { id: "chocolate",    name: "Chocolate Elegance",    description: "Rich dark chocolate layers with velvet frosting",         image: "https://images.unsplash.com/photo-1594403759538-5141d2cc452a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800",                 category: "classic",   prices: { "250g": 175, "500g": 349,  "1kg": 650  } },
+  { id: "butterscotch", name: "Butterscotch Bliss",    description: "Golden butterscotch cream with crunchy praline",          image: "https://images.unsplash.com/photo-1621303837174-89787a7d4729?w=600&q=80",                                                      category: "classic",   prices: { "250g": 160, "500g": 320,  "1kg": 600  } },
+  { id: "pineapple",    name: "Pineapple Delight",     description: "Light pineapple sponge with fresh cream",                 image: "https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=600&q=80",                                                      category: "classic",   prices: { "250g": 150, "500g": 299,  "1kg": 550  } },
+  { id: "blackforest",  name: "Black Forest",          description: "Chocolate sponge with cherries and cream",                image: "https://images.unsplash.com/photo-1562440499-64c9a111f713?w=600&q=80",                                                          category: "classic",   prices: { "250g": 175, "500g": 349,  "1kg": 650  } },
+  { id: "strawberry",   name: "Strawberry Delight",    description: "Fresh strawberries and light cream",                      image: "https://images.unsplash.com/photo-1726828952313-385d63df2514?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800",                 category: "classic",   prices: { "250g": 175, "500g": 349,  "1kg": 650  } },
+  { id: "truffle",      name: "Chocolate Truffle",     description: "Indulgent truffle ganache with dark chocolate shavings",  image: "https://images.unsplash.com/photo-1606890737304-57a1ca8a5994?w=600&q=80",                                                      category: "chocolate", prices: { "250g": 200, "500g": 399,  "1kg": 750  } },
+  { id: "fudge",        name: "Chocolate Fudge",       description: "Dense fudge layers with rich chocolate sauce",            image: "https://images.unsplash.com/photo-1586985289688-ca3cf47d3e6e?w=600&q=80",                                                      category: "chocolate", prices: { "250g": 225, "500g": 449,  "1kg": 850  } },
+  { id: "hazelnut",     name: "Chocolate Hazelnut",    description: "Nutella cream with crunchy hazelnut praline",             image: "https://images.unsplash.com/photo-1571115177098-24ec42ed204d?w=600&q=80",                                                      category: "chocolate", prices: { "250g": 250, "500g": 499,  "1kg": 950  } },
+  { id: "oreo",         name: "Chocolate Oreo",        description: "Chocolate sponge loaded with Oreo cream chunks",          image: "https://images.unsplash.com/photo-1551879400-111a9087cd86?w=600&q=80",                                                          category: "chocolate", prices: { "250g": 225, "500g": 449,  "1kg": 850  } },
+  { id: "mint",         name: "Chocolate Mint",        description: "Cool mint cream with dark chocolate layers",              image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=600&q=80",                                                      category: "chocolate", prices: { "250g": 200, "500g": 399,  "1kg": 750  } },
+  { id: "mango",        name: "Mango Tango",           description: "Alphonso mango cream with fresh mango chunks",            image: "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=600&q=80",                                                      category: "fruit",     prices: { "250g": 200, "500g": 399,  "1kg": 750  } },
+  { id: "blueberry",    name: "Blueberry Burst",       description: "Blueberry compote with vanilla cream layers",             image: "https://images.unsplash.com/photo-1559620192-032c4bc4674e?w=600&q=80",                                                          category: "fruit",     prices: { "250g": 225, "500g": 449,  "1kg": 850  } },
+  { id: "lemon",        name: "Lemon Citrus",          description: "Fresh lemon zest with tangy glaze",                       image: "https://images.unsplash.com/photo-1552958492-9cb8e9446673?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800",                   category: "fruit",     prices: { "250g": 190, "500g": 379,  "1kg": 699  } },
+  { id: "raspberry",    name: "Raspberry Rose",        description: "Delicate rose water with fresh raspberries",              image: "https://images.unsplash.com/photo-1670225078962-0c3490641003?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800",                 category: "fruit",     prices: { "250g": 225, "500g": 449,  "1kg": 850  } },
+  { id: "redvelvet",    name: "Red Velvet",            description: "Smooth cream cheese frosting on red velvet",              image: "https://images.unsplash.com/photo-1604413191066-4dd20bedf486?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800",                 category: "premium",   prices: { "250g": 249, "500g": 499,  "1kg": 950  } },
+  { id: "tiramisu",     name: "Tiramisu Supreme",      description: "Coffee-soaked layers with mascarpone cream",              image: "https://images.unsplash.com/photo-1671721100511-4cb82346d66a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800",                 category: "premium",   prices: { "250g": 299, "500g": 599,  "1kg": 1150 } },
+  { id: "caramel",      name: "Caramel Delight",       description: "Salted caramel buttercream perfection",                   image: "https://images.unsplash.com/photo-1658413381696-e75f942aa3d2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800",                 category: "premium",   prices: { "250g": 275, "500g": 549,  "1kg": 1050 } },
+  { id: "pistachio",    name: "Pistachio Bliss",       description: "Ground pistachios with white chocolate",                  image: "https://images.unsplash.com/photo-1701944578045-dc3f7fd28335?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800",                 category: "premium",   prices: { "250g": 299, "500g": 599,  "1kg": 1150 } },
+  { id: "ferrero",      name: "Ferrero Rocher",        description: "Hazelnut praline with Ferrero Rocher pieces",             image: "https://images.unsplash.com/photo-1599785209707-a456fc1337bb?w=600&q=80",                                                      category: "fusion",    prices: { "250g": 325, "500g": 649,  "1kg": 1249 } },
+  { id: "biscoff",      name: "Biscoff Lotus",         description: "Lotus Biscoff spread with caramelised cookie crumble",   image: "https://images.unsplash.com/photo-1587668178277-295251f900ce?w=600&q=80",                                                      category: "fusion",    prices: { "250g": 325, "500g": 649,  "1kg": 1249 } },
+  { id: "matcha",       name: "Matcha Green Tea",      description: "Japanese matcha with honey glaze",                        image: "https://images.unsplash.com/photo-1672504015204-07372bd02933?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800",                 category: "fusion",    prices: { "250g": 275, "500g": 549,  "1kg": 1050 } },
+  { id: "rasmalai",     name: "Rasmalai Cake",         description: "Saffron cream with soft rasmalai pieces",                 image: "https://images.unsplash.com/photo-1606890737304-57a1ca8a5994?w=600&q=80",                                                      category: "indian",    prices: { "250g": 249, "500g": 499,  "1kg": 950  } },
+  { id: "kesarpista",   name: "Kesar Pista",           description: "Saffron and pistachio cream with rose petals",            image: "https://images.unsplash.com/photo-1621303837174-89787a7d4729?w=600&q=80",                                                      category: "indian",    prices: { "250g": 275, "500g": 549,  "1kg": 1050 } },
+  { id: "gulabjamun",   name: "Gulab Jamun Cake",      description: "Gulab jamun pieces soaked in rose syrup cream",           image: "https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=600&q=80",                                                      category: "indian",    prices: { "250g": 249, "500g": 499,  "1kg": 950  } },
 ];
 
 const CATEGORIES = [
-  { key: "all", label: "All Cakes" },
-  { key: "classic", label: "🍰 Classic" },
+  { key: "all",        label: "All Cakes"   },
+  { key: "classic",   label: "🍰 Classic"   },
   { key: "chocolate", label: "🍫 Chocolate" },
-  { key: "fruit", label: "🍓 Fruit" },
-  { key: "premium", label: "✨ Premium" },
-  { key: "fusion", label: "🍩 Fusion" },
-  { key: "indian", label: "🇮🇳 Indian" },
+  { key: "fruit",     label: "🍓 Fruit"     },
+  { key: "premium",   label: "✨ Premium"   },
+  { key: "fusion",    label: "🍩 Fusion"    },
+  { key: "indian",    label: "🇮🇳 Indian"   },
 ];
 
 const SIZE_SERVES: Record<Size, string> = {
   "250g": "2–3 serves",
   "500g": "4–6 serves",
-  "1kg": "8–12 serves",
+  "1kg":  "8–12 serves",
 };
 
 // ── Cart Drawer ───────────────────────────────────────────────────────────────
-function CartDrawer({ items, onClose, onQtyChange, onRemove }: {
+function CartDrawer({ items, onClose, onQtyChange, onRemove, onCheckout }: {
   items: CartItem[];
   onClose: () => void;
   onQtyChange: (id: string, qty: number) => void;
   onRemove: (id: string) => void;
+  onCheckout: () => void;
 }) {
   const total = items.reduce((s, i) => s + i.price * i.qty, 0);
 
@@ -92,8 +83,6 @@ function CartDrawer({ items, onClose, onQtyChange, onRemove }: {
     <div style={{ position: "fixed", inset: 0, zIndex: 998, display: "flex" }}>
       <div onClick={onClose} style={{ flex: 1, background: "rgba(0,0,0,0.35)", cursor: "pointer" }} />
       <div style={{ width: 380, maxWidth: "95vw", background: "#fffdf8", display: "flex", flexDirection: "column", boxShadow: "-8px 0 40px rgba(0,0,0,0.12)" }}>
-
-        {/* Header */}
         <div style={{ padding: "22px 24px 18px", borderBottom: "1px solid #f0ebe0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div>
             <p style={{ fontSize: 20, fontWeight: 700, color: "#2d1f0e", margin: 0 }}>Your Cart</p>
@@ -102,7 +91,6 @@ function CartDrawer({ items, onClose, onQtyChange, onRemove }: {
           <button onClick={onClose} style={{ border: "1px solid #e8e0d0", background: "#fff", borderRadius: 8, width: 34, height: 34, cursor: "pointer", fontSize: 15, color: "#888" }}>✕</button>
         </div>
 
-        {/* Items */}
         <div style={{ flex: 1, overflowY: "auto", padding: "16px 24px" }}>
           {items.length === 0 ? (
             <div style={{ textAlign: "center", padding: "60px 0" }}>
@@ -130,33 +118,16 @@ function CartDrawer({ items, onClose, onQtyChange, onRemove }: {
           ))}
         </div>
 
-        {/* Footer */}
         {items.length > 0 && (
           <div style={{ padding: "16px 24px 28px", borderTop: "1px solid #f0ebe0" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}>
               <span style={{ fontSize: 14, color: "#a08060" }}>Total</span>
               <span style={{ fontSize: 20, fontWeight: 700, color: "#2d1f0e" }}>₹{total}</span>
             </div>
-            <p style={{ fontSize: 12, color: "#bbb", marginBottom: 14 }}>Delivery charges applied at confirmation</p>
-
-            {/* WhatsApp button */}
-            <button
-              onClick={() => orderViaWhatsApp(items)}
-              style={{
-                width: "100%", padding: "14px 0",
-                background: "#25D366", color: "#fff",
-                border: "none", borderRadius: 12,
-                fontSize: 15, fontWeight: 600, cursor: "pointer",
-                display: "flex", alignItems: "center",
-                justifyContent: "center", gap: 8,
-                letterSpacing: 0.3,
-              }}
-            >
-              <span style={{ fontSize: 20 }}>💬</span> Order via WhatsApp
+            <button onClick={onCheckout} style={{ width: "100%", padding: "14px 0", background: "#25D366", color: "#fff", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+              <span style={{ fontSize: 18 }}>💬</span> Proceed to Order
             </button>
-            <p style={{ fontSize: 11, color: "#bbb", textAlign: "center", marginTop: 10 }}>
-              Your order details will be sent to us on WhatsApp
-            </p>
+            <p style={{ fontSize: 11, color: "#bbb", textAlign: "center", marginTop: 8 }}>Enter delivery details on next step</p>
           </div>
         )}
       </div>
@@ -176,8 +147,7 @@ function CakeCard({ cake, onAddToCart }: { cake: Cake; onAddToCart: (item: CartI
   }
 
   return (
-    <div
-      style={{ background: "#fff", borderRadius: 18, overflow: "hidden", border: "1px solid #f0ebe0", display: "flex", flexDirection: "column", transition: "transform 0.2s, box-shadow 0.2s" }}
+    <div style={{ background: "#fff", borderRadius: 18, overflow: "hidden", border: "1px solid #f0ebe0", display: "flex", flexDirection: "column", transition: "transform 0.2s, box-shadow 0.2s" }}
       onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(-4px)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 16px 48px rgba(0,0,0,0.10)"; }}
       onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "none"; }}
     >
@@ -216,6 +186,7 @@ export default function CakeSelector() {
   const [activeCategory, setActiveCategory] = useState("all");
   const [cart, setCart] = useState<CartItem[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
 
   const cartCount = cart.reduce((s, i) => s + i.qty, 0);
   const filtered = CAKES.filter(c => activeCategory === "all" || c.category === activeCategory);
@@ -227,6 +198,13 @@ export default function CakeSelector() {
       return [...prev, item];
     });
   }
+
+  const checkoutItems: CheckoutItem[] = cart.map(i => ({
+    name: i.name,
+    detail: i.size,
+    price: i.price,
+    qty: i.qty,
+  }));
 
   return (
     <div>
@@ -241,9 +219,7 @@ export default function CakeSelector() {
         </div>
         <button onClick={() => setCartOpen(true)} style={{ position: "relative", display: "flex", alignItems: "center", gap: 8, padding: "10px 20px", background: "#2d1f0e", color: "#fff", border: "none", borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: "pointer", flexShrink: 0 }}>
           🛒 Cart
-          {cartCount > 0 && (
-            <span style={{ position: "absolute", top: -8, right: -8, background: "#c8873a", color: "#fff", borderRadius: "50%", width: 22, height: 22, fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid #fdf8f2" }}>{cartCount}</span>
-          )}
+          {cartCount > 0 && <span style={{ position: "absolute", top: -8, right: -8, background: "#c8873a", color: "#fff", borderRadius: "50%", width: 22, height: 22, fontSize: 11, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid #fdf8f2" }}>{cartCount}</span>}
         </button>
       </div>
 
@@ -253,7 +229,7 @@ export default function CakeSelector() {
       </div>
 
       {/* Cart Drawer */}
-      {cartOpen && (
+      {cartOpen && !checkoutOpen && (
         <CartDrawer
           items={cart}
           onClose={() => setCartOpen(false)}
@@ -262,6 +238,16 @@ export default function CakeSelector() {
             else setCart(prev => prev.map(i => i.id === id ? { ...i, qty } : i));
           }}
           onRemove={id => setCart(prev => prev.filter(i => i.id !== id))}
+          onCheckout={() => { setCartOpen(false); setCheckoutOpen(true); }}
+        />
+      )}
+
+      {/* Checkout Modal */}
+      {checkoutOpen && (
+        <CheckoutModal
+          items={checkoutItems}
+          whatsappNumber={WHATSAPP_NUMBER}
+          onClose={() => setCheckoutOpen(false)}
         />
       )}
     </div>
